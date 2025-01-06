@@ -6,8 +6,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/darkit/slog"
 )
 
 // ServiceGroup 管理一组服务
@@ -92,7 +90,7 @@ func (sg *ServiceGroup) Add(s Service) error {
 	// 注册服务指标
 	sg.metrics.RegisterService(s.Name())
 
-	slog.Info("Added service to ServiceGroup",
+	defaultLogger.Info("Added service to ServiceGroup",
 		"service", s.Name(),
 		"priority", s.Priority(),
 		"dependencies", s.Dependencies())
@@ -156,7 +154,7 @@ func (sg *ServiceGroup) Stop() error {
 	for _, name := range stopOrder {
 		if err := sg.stopService(ctx, name); err != nil {
 			stopErr = err
-			slog.Error("Error stopping service",
+			defaultLogger.Error("Error stopping service",
 				"service", name,
 				"error", err)
 		}
@@ -224,7 +222,7 @@ func (sg *ServiceGroup) healthCheckLoop() {
 			sg.services.Range(func(key, value interface{}) bool {
 				service := value.(Service)
 				if err := service.HealthCheck(sg.ctx); err != nil {
-					slog.Error("Service health check failed",
+					defaultLogger.Error("Service health check failed",
 						"service", service.Name(),
 						"error", err)
 				}
